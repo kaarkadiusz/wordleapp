@@ -1,12 +1,14 @@
 "use client";
 
 import WordleGame from "@/components/WordleGame";
+import WordleKeyboard from "@/components/WordleKeyboard";
 
 export default function Home() {
 
   return (
-    <main className="flex justify-center items-center w-screen h-screen">
+    <main>
       <WordleGame />
+      {/* <WordleKeyboard /> */}
     </main>
   );
 }
