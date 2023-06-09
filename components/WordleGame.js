@@ -14,7 +14,7 @@ export default function WordleGame() {
   const [guess, setGuess] = useState(0);
   const [words, setWords] = useState(null);
   const [wordToGuess, setWordToGuess] = useState(null);
-  const [localeCode, setLocaleCode] = useState("pl");
+  const [localeCode, setLocaleCode] = useState(null);
   const [locale, setLocale] = useState(null);
   let myObj = {};
   "QWERTYUIOPASDFGHJKLZXCVBNMĄĆĘŁŃÓŚŹŻ".split("").map((x) => {
@@ -103,14 +103,15 @@ export default function WordleGame() {
     setKeyboardState((prevState) => ({ ...prevState, ...myObj }));
   }
   useEffect(() => {
-    if (
-      localStorage.getItem("locale") !== null &&
-      localStorage.getItem("locale") !== "pl"
-    ) {
+    if (localStorage.getItem("locale") === null) {
+      setLocaleCode("pl");
+    }
+    else {
       setLocaleCode(localStorage.getItem("locale"));
     }
   }, []);
   useEffect(() => {
+    if(localeCode === null) return;
     setLoading(true);
     fetch("/locale.json")
       .then((res) => res.json())
