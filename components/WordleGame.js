@@ -14,11 +14,7 @@ export default function WordleGame() {
   const [guess, setGuess] = useState(0);
   const [words, setWords] = useState(null);
   const [wordToGuess, setWordToGuess] = useState(null);
-  const [localeCode] = useState(
-    localStorage.getItem("locale") === null
-      ? "pl"
-      : localStorage.getItem("locale")
-  );
+  const [localeCode, setLocaleCode] = useState("pl");
   const [locale, setLocale] = useState(null);
   let myObj = {};
   "QWERTYUIOPASDFGHJKLZXCVBNMĄĆĘŁŃÓŚŹŻ".split("").map((x) => {
@@ -107,27 +103,29 @@ export default function WordleGame() {
     setKeyboardState((prevState) => ({ ...prevState, ...myObj }));
   }
   useEffect(() => {
-    if (locale === null) {
-      fetch("/locale.json")
-        .then((res) => res.json())
-        .then((data) => {
-          setLocale(data[localeCode]);
-        });
-    }
-    if (words === null) {
-      let url = `/words_${localeCode}.json`;
-      fetch(url)
-        .then((res) => res.json())
-        .then((data) => {
-          setWords(data);
-          pickWordToGuess(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setLoading(false);
-        });
+    if (
+      localStorage.getItem("locale") !== null &&
+      localStorage.getItem("locale") !== "pl"
+    ) {
+      setLocaleCode(localStorage.getItem("locale"));
     }
   }, []);
+  useEffect(() => {
+    setLoading(true);
+    fetch("/locale.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setLocale(data[localeCode]);
+      });
+    let url = `/words_${localeCode}.json`;
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+        setWords(data);
+        pickWordToGuess(data);
+        setLoading(false);
+      });
+  }, [localeCode]);
 
   useEffect(() => {
     if (loading) return;
@@ -222,7 +220,7 @@ export default function WordleGame() {
     );
   }
   return (
-    <div className="flex flex-col justify-center items-center w-screen h-screen">
+    <div className="flex flex-col justify-center items-center w-screen h-full">
       <div className="flex flex-col w-fit">
         <header className="mb-1 flex flex-row justify-between">
           <button
