@@ -5,7 +5,8 @@
     "not_found": "Nie znaleziono słowa",
     "too_short": "Słowo jest za krótkie",
     "new_game": "Nowa gra",
-    "give_up": "Poddaj się"
+    "give_up": "Poddaj się",
+    "switch_language": "Switch language"
   },
   "en": {
     "incorrect": "The correct word was",
@@ -13,6 +14,7 @@
     "not_found": "Word was not found",
     "too_short": "Word is too short",
     "new_game": "New game",
-    "give_up": "Give up"
+    "give_up": "Give up",
+    "switch_language": "Zmień język"
   }
 }

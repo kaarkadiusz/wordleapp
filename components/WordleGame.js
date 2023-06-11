@@ -5,23 +5,22 @@ import WordleRow from "@/components/WordleGame/WordleRow";
 import WordleKeyboard from "@/components/WordleGame/WordleKeyboard";
 import "@/components/WordleGame/WordleGame.css";
 
-export default function WordleGame() {
+export default function WordleGame({locale, words, localeCode}) {
   const [overlay, setOverlay] = useState({ visible: false, text: "" });
   const [toast, setToast] = useState({ visible: false, text: "" });
   const toastTimeout = useRef(null);
   const [guesses, setGuesses] = useState(["", "", "", "", "", ""]);
   const [evaluation, setEvaluation] = useState([[], [], [], [], [], []]);
   const [guess, setGuess] = useState(0);
-  const [words, setWords] = useState(null);
+  // const [words, setWords] = useState(null);
   const [wordToGuess, setWordToGuess] = useState(null);
-  const [localeCode, setLocaleCode] = useState(null);
-  const [locale, setLocale] = useState(null);
+  // const [localeCode, setLocaleCode] = useState(null);
+  // const [locale, setLocale] = useState(null);
   let myObj = {};
   "QWERTYUIOPASDFGHJKLZXCVBNMĄĆĘŁŃÓŚŹŻ".split("").map((x) => {
     myObj[x] = -1;
   });
   const [keyboardState, setKeyboardState] = useState(myObj);
-  const [loading, setLoading] = useState(true);
 
   function pickWordToGuess(data) {
     const word = data[Math.floor(Math.random() * data.length)];
@@ -32,6 +31,10 @@ export default function WordleGame() {
     }
     setWordToGuess({ word: word, counter: wordCounter });
   }
+
+  useEffect(() => {
+    pickWordToGuess(words);
+  }, []);
   function playerPick() {
     if (!words.some((word) => word === guesses[guess])) return -1;
 
@@ -72,8 +75,8 @@ export default function WordleGame() {
       text: `${locale.incorrect} ${wordToGuess.word.toUpperCase()}`,
     });
   }
-  function newGame() {
-    setLoading(true);
+  function newGame(e) {
+    e.target.blur();
     pickWordToGuess(words);
     setGuess(0);
     setOverlay((prevState) => ({ ...prevState, visible: false }));
@@ -84,7 +87,6 @@ export default function WordleGame() {
       myObj[x] = -1;
     });
     setKeyboardState(myObj);
-    setLoading(false);
   }
   function updateKeyboardState(word, result) {
     let myObj = {};
@@ -102,34 +104,8 @@ export default function WordleGame() {
     }
     setKeyboardState((prevState) => ({ ...prevState, ...myObj }));
   }
-  useEffect(() => {
-    if (localStorage.getItem("locale") === null) {
-      setLocaleCode("pl");
-    }
-    else {
-      setLocaleCode(localStorage.getItem("locale"));
-    }
-  }, []);
-  useEffect(() => {
-    if(localeCode === null) return;
-    setLoading(true);
-    fetch("/locale.json")
-      .then((res) => res.json())
-      .then((data) => {
-        setLocale(data[localeCode]);
-      });
-    let url = `/words_${localeCode}.json`;
-    fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-        setWords(data);
-        pickWordToGuess(data);
-        setLoading(false);
-      });
-  }, [localeCode]);
 
   useEffect(() => {
-    if (loading) return;
     const handleKeyDown = (event) => {
       if (guess === -1) return;
       const inputChar = event.key.toLowerCase();
@@ -206,7 +182,7 @@ export default function WordleGame() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [guess, guesses, loading]);
+  }, [guess, guesses]);
 
   const keyboardCallback = (event) => {
     const keyDownEvent = new KeyboardEvent("keydown", {
@@ -221,15 +197,14 @@ export default function WordleGame() {
     );
   }
   return (
-    <div className="flex flex-col justify-center items-center w-screen h-full">
+    <div className="flex flex-col justify-center items-center w-full h-full ">
       <div className="flex flex-col w-fit">
         <header className="mb-1 flex flex-row justify-between">
           <button
             className={`bg-slate-200 hover:bg-slate-400 rounded py-1 px-2 text-black 
         disabled:bg-slate-200 disabled:opacity-50
-        focus:active:bg-slate-600
-        ${loading ? "blur-sm animate-pulse" : ""}`}
-            disabled={overlay.visible || loading}
+        focus:active:bg-slate-600`}
+            disabled={overlay.visible}
             onClick={giveUp}
           >
             {locale !== null ? locale.give_up : ""}
@@ -237,17 +212,14 @@ export default function WordleGame() {
           <button
             className={`bg-slate-200 hover:bg-slate-400 rounded py-1 px-2 text-black 
         disabled:bg-slate-200 disabled:opacity-50
-        focus:active:bg-slate-600
-        ${loading ? "blur-sm animate-pulse" : ""}`}
-            disabled={loading}
+        focus:active:bg-slate-600`}
             onClick={newGame}
           >
             {locale !== null ? locale.new_game : ""}
           </button>
         </header>
         <main
-          className={`relative flex flex-col justify-center items-center
-        ${loading ? "blur-sm animate-pulse" : ""}`}
+          className={`relative flex flex-col justify-center items-center`}
         >
           {wordleRows}
           <p
